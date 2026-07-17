@@ -1,0 +1,3 @@
+{$BLOG_DOMAIN} {
+	reverse_proxy ghost:2368
+}
