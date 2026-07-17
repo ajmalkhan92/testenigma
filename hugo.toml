@@ -7,6 +7,9 @@ enableRobotsTXT = true
 enableGitInfo = false
 paginate = 10
 
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+
 [params]
   env = 'production'
   description = 'Testing software with AI, and testing AI itself.'
@@ -19,10 +22,20 @@ paginate = 10
   ShowCodeCopyButtons = true
   ShowRssButtonInSectionTermList = true
   ShowToc = true
+  comments = true
 
   [params.homeInfoParams]
     Title = "TestEnigma"
     Content = "Testing software with AI, and testing AI itself. Notes from the intersection of QA and machine learning."
+
+  [params.fuseOpts]
+    isCaseSensitive = false
+    shouldSort = true
+    location = 0
+    distance = 1000
+    threshold = 0.4
+    minMatchCharLength = 0
+    keys = ['title', 'permalink', 'summary', 'content']
 
 [[menu.main]]
   identifier = 'posts'
@@ -35,6 +48,12 @@ paginate = 10
   name = 'Tags'
   url = '/tags/'
   weight = 20
+
+[[menu.main]]
+  identifier = 'search'
+  name = 'Search'
+  url = '/search/'
+  weight = 30
 
 [markup]
   [markup.highlight]
