@@ -1,10 +1,10 @@
 # TestEnigma
 
-A self-hosted [Ghost](https://ghost.org) blog at [testenigma.com](https://testenigma.com)
+A [Hugo](https://gohugo.io) static blog at [testenigma.com](https://testenigma.com)
 about AI for software testing and testing AI systems, with:
 
 - an automated publish pipeline (push a Markdown post -> GitHub Actions ->
-  live on the blog),
+  builds with Hugo -> deploys to GitHub Pages, free, no server to maintain),
 - a documented manual step to cross-post to Medium with a canonical link
   (see [CROSSPOST.md](CROSSPOST.md) — Medium's API is closed to new
   integrations, so this can't be automated),
@@ -13,75 +13,64 @@ about AI for software testing and testing AI systems, with:
 ## Repo layout
 
 ```
-posts/      Markdown posts (front matter: title, slug, tags, excerpt, status)
-ideas/      Daily idea digests, dated (also emailed to you)
-scripts/    publish_to_ghost.py, send_idea_email.py
-infra/      docker-compose.yml + Caddyfile for self-hosting Ghost
+content/posts/   Hugo content — one Markdown file per post
+archetypes/       posts.md is the template `hugo new content posts/x.md` uses
+ideas/            Daily idea digests, dated (also emailed to you)
+scripts/          send_idea_email.py — emails the daily digest via Resend
+themes/PaperMod/  Hugo theme (git submodule)
+static/CNAME      Tells GitHub Pages the custom domain
+hugo.toml         Site config
 ```
 
-## 1. Set up the VPS and Ghost
-
-1. **Domain**: `testenigma.com` (registered via GoDaddy).
-2. **Provision a small Ubuntu 22.04 VPS** — a Hetzner CX22 or DigitalOcean
-   $6/mo droplet is plenty. Point `testenigma.com`'s `A` record (in GoDaddy's
-   DNS settings) at the VPS's IP.
-3. **Install Docker** on the VPS:
-   ```
-   curl -fsSL https://get.docker.com | sh
-   ```
-4. **Copy `infra/` to the VPS** (`scp -r infra your-vps:~/blog-infra` or
-   `git clone` this repo there), then create `infra/.env` from
-   `infra/.env.example` with your real domain and a strong MySQL password.
-5. **Start it**:
-   ```
-   cd blog-infra && docker compose --env-file .env up -d
-   ```
-   Caddy will automatically request a Let's Encrypt certificate for your
-   domain the first time it's reached over HTTPS — give DNS a few minutes to
-   propagate first.
-6. Visit `https://testenigma.com/ghost/` and complete Ghost's setup wizard
-   (creates your admin user).
-7. In Ghost Admin: **Settings -> Advanced -> Integrations -> Add custom
-   integration**. Name it e.g. "Publish pipeline". Copy the **Admin API
-   Key** (`id:secret` format) and the site URL — these become
-   `GHOST_ADMIN_API_KEY` and `GHOST_API_URL`.
-
-## 2. Wire up the publish pipeline
-
-1. Push this repo to a **GitHub repository**.
-2. In the GitHub repo settings -> **Secrets and variables -> Actions**, add:
-   - `GHOST_API_URL`
-   - `GHOST_ADMIN_API_KEY`
-3. That's it — `.github/workflows/publish.yml` runs on every push to `main`
-   that touches `posts/*.md` and publishes/updates the changed post(s) via
-   the Ghost Admin API.
-
-### Local testing (optional, before relying on CI)
+## 1. Writing and publishing a post
 
 ```
-cd scripts
-pip install -r requirements.txt
-export GHOST_API_URL=https://testenigma.com
-export GHOST_ADMIN_API_KEY=id:secret
-python3 publish_to_ghost.py ../posts/your-post.md
+hugo new content posts/your-post-slug.md
 ```
 
-## 3. Writing and publishing a post
+1. Fill in `title`, `tags`, `description` in the front matter, write the body
+   in Markdown.
+2. Leave `draft = true` while you're still writing — drafts are excluded
+   from the build, so it's safe to commit/push mid-draft.
+3. When ready, set `draft = false`, commit, and push to `main`.
+   `.github/workflows/publish.yml` builds the site with Hugo and deploys it
+   to GitHub Pages automatically — no server, no manual deploy step.
+4. Cross-post to Medium manually — see [CROSSPOST.md](CROSSPOST.md).
 
-1. Copy `posts/_template.md` to `posts/your-post-slug.md`.
-2. Fill in `title`, `slug`, `tags`, `excerpt`, write the body in Markdown.
-3. Set `status: draft` while you're still writing (safe to push — it'll
-   sync to Ghost as a draft, not go live).
-4. When ready, set `status: publish`, commit, and push to `main`. The post
-   goes live automatically.
-5. Cross-post to Medium manually — see [CROSSPOST.md](CROSSPOST.md).
+### Preview locally before pushing
 
-## 4. Daily 10-idea email
+```
+hugo server -D
+```
+
+Opens a live-reloading preview (including drafts) at `localhost:1313`.
+
+## 2. One-time GitHub Pages setup
+
+1. Push this repo to GitHub (already done — `ajmalkhan92/testenigma`).
+2. Repo **Settings -> Pages -> Build and deployment -> Source**: set to
+   **GitHub Actions**.
+3. Repo **Settings -> Pages -> Custom domain**: enter `testenigma.com`,
+   then enable **Enforce HTTPS** once it's verified (may take a few minutes
+   after DNS is configured).
+4. In your DNS provider (GoDaddy) for `testenigma.com`, add four `A` records
+   for the apex domain (`@`) pointing to GitHub Pages:
+   ```
+   185.199.108.153
+   185.199.109.153
+   185.199.110.153
+   185.199.111.153
+   ```
+   Optionally add a `CNAME` record for `www` -> `ajmalkhan92.github.io`.
+5. Push to `main` (or re-run the workflow) — GitHub Actions builds and
+   deploys automatically from here on.
+
+## 3. Daily 10-idea email
 
 Set up once as a Claude Code scheduled routine (`/schedule` or the
 `CronCreate` tool) that runs once a day and:
 
-1. Reads existing titles in `posts/` and `ideas/` to avoid repeats.
+1. Reads existing titles in `content/posts/` and `ideas/` to avoid repeats.
 2. Brainstorms 10 post ideas spanning both "AI for testing" and "testing AI
    systems."
 3. Writes them to `ideas/YYYY-MM-DD.md`.
@@ -95,4 +84,4 @@ Requires these environment variables available to the routine (a
 - `RESEND_FROM_EMAIL` (an address on a domain verified in Resend)
 - `RECIPIENT_EMAIL` (ajmalkhan92@gmail.com)
 
-Pick one idea from the digest each day and follow the workflow in section 3.
+Pick one idea from the digest each day and follow the workflow in section 1.

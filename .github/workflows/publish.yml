@@ -1,39 +1,47 @@
-name: Publish posts to Ghost
+name: Build and deploy Hugo site
 
 on:
   push:
     branches: [main]
-    paths:
-      - "posts/**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          submodules: recursive
+          fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
         with:
-          python-version: "3.12"
+          hugo-version: "0.164.0"
+          extended: true
 
-      - run: pip install -r scripts/requirements.txt
+      - name: Build
+        run: hugo --minify
 
-      - name: Publish changed posts
-        env:
-          GHOST_API_URL: ${{ secrets.GHOST_API_URL }}
-          GHOST_ADMIN_API_KEY: ${{ secrets.GHOST_ADMIN_API_KEY }}
-        run: |
-          set -e
-          changed=$(git diff --name-only HEAD^ HEAD -- 'posts/*.md' | grep -v '_template.md' || true)
-          if [ -z "$changed" ]; then
-            echo "No post changes to publish."
-            exit 0
-          fi
-          for f in $changed; do
-            if [ -f "$f" ]; then
-              echo "Publishing $f"
-              python3 scripts/publish_to_ghost.py "$f"
-            fi
-          done
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

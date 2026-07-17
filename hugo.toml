@@ -1,0 +1,44 @@
+baseURL = 'https://testenigma.com/'
+locale = 'en-us'
+title = 'TestEnigma'
+theme = 'PaperMod'
+
+enableRobotsTXT = true
+enableGitInfo = false
+paginate = 10
+
+[params]
+  env = 'production'
+  description = 'Testing software with AI, and testing AI itself.'
+  author = 'Ajmal'
+  defaultTheme = 'auto'
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowRssButtonInSectionTermList = true
+  ShowToc = true
+
+  [params.homeInfoParams]
+    Title = "TestEnigma"
+    Content = "Testing software with AI, and testing AI itself. Notes from the intersection of QA and machine learning."
+
+[[menu.main]]
+  identifier = 'posts'
+  name = 'Posts'
+  url = '/posts/'
+  weight = 10
+
+[[menu.main]]
+  identifier = 'tags'
+  name = 'Tags'
+  url = '/tags/'
+  weight = 20
+
+[markup]
+  [markup.highlight]
+    noClasses = false
+    codeFences = true
+    guessSyntax = true
+    style = 'monokai'
