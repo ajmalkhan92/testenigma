@@ -1,7 +1,7 @@
-# Testing & AI Blog
+# TestEnigma
 
-A self-hosted [Ghost](https://ghost.org) blog about AI for software testing
-and testing AI systems, with:
+A self-hosted [Ghost](https://ghost.org) blog at [testenigma.com](https://testenigma.com)
+about AI for software testing and testing AI systems, with:
 
 - an automated publish pipeline (push a Markdown post -> GitHub Actions ->
   live on the blog),
@@ -21,9 +21,10 @@ infra/      docker-compose.yml + Caddyfile for self-hosting Ghost
 
 ## 1. Set up the VPS and Ghost
 
-1. **Buy a domain** (Namecheap, Porkbun, etc.) if you don't have one.
+1. **Domain**: `testenigma.com` (registered via GoDaddy).
 2. **Provision a small Ubuntu 22.04 VPS** — a Hetzner CX22 or DigitalOcean
-   $6/mo droplet is plenty. Point the domain's `A` record at the VPS's IP.
+   $6/mo droplet is plenty. Point `testenigma.com`'s `A` record (in GoDaddy's
+   DNS settings) at the VPS's IP.
 3. **Install Docker** on the VPS:
    ```
    curl -fsSL https://get.docker.com | sh
@@ -38,7 +39,7 @@ infra/      docker-compose.yml + Caddyfile for self-hosting Ghost
    Caddy will automatically request a Let's Encrypt certificate for your
    domain the first time it's reached over HTTPS — give DNS a few minutes to
    propagate first.
-6. Visit `https://your-domain.com/ghost/` and complete Ghost's setup wizard
+6. Visit `https://testenigma.com/ghost/` and complete Ghost's setup wizard
    (creates your admin user).
 7. In Ghost Admin: **Settings -> Advanced -> Integrations -> Add custom
    integration**. Name it e.g. "Publish pipeline". Copy the **Admin API
@@ -60,7 +61,7 @@ infra/      docker-compose.yml + Caddyfile for self-hosting Ghost
 ```
 cd scripts
 pip install -r requirements.txt
-export GHOST_API_URL=https://your-domain.com
+export GHOST_API_URL=https://testenigma.com
 export GHOST_ADMIN_API_KEY=id:secret
 python3 publish_to_ghost.py ../posts/your-post.md
 ```
