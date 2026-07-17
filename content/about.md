@@ -3,6 +3,8 @@ title = 'About'
 url = '/about/'
 +++
 
+![Ajmal Khan](/images/profile.jpg)
+
 ## Hi, I'm Ajmal Khan
 
 I write TestEnigma — a blog about testing software with AI, and testing AI
