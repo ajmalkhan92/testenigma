@@ -37,6 +37,14 @@ paginate = 10
     minMatchCharLength = 0
     keys = ['title', 'permalink', 'summary', 'content']
 
+  [[params.socialIcons]]
+    name = 'linkedin'
+    url = 'https://www.linkedin.com/in/ajmal-khan-98254871/'
+
+  [[params.socialIcons]]
+    name = 'github'
+    url = 'https://github.com/ajmalkhan92'
+
 [[menu.main]]
   identifier = 'posts'
   name = 'Posts'
@@ -48,6 +56,12 @@ paginate = 10
   name = 'Tags'
   url = '/tags/'
   weight = 20
+
+[[menu.main]]
+  identifier = 'about'
+  name = 'About'
+  url = '/about/'
+  weight = 25
 
 [[menu.main]]
   identifier = 'search'
