@@ -6,11 +6,11 @@ category: reliability
 tags: ["security", "LLM evals", "Python"]
 ---
 
-Every other post on this blog has tested whether a model's output is *correct*. This one tests whether it's *obedient to the wrong instructions* — the failure mode where untrusted text (a user message, a document being summarized, a search result) contains an instruction the model follows instead of the one it was actually asked to perform. That's prompt injection, and it's the LLM-specific vulnerability class that shows up in nearly every public incident write-up involving an LLM feature.
+Every other post on this blog has tested whether a model's output is *correct*. This one tests whether it's *obedient to the wrong instructions*: the failure mode where untrusted text (a user message, a document being summarized, a search result) contains an instruction the model follows instead of the one it was actually asked to perform. That's prompt injection, and it's the LLM-specific vulnerability class that shows up in nearly every public incident write-up involving an LLM feature.
 
-You can't eliminate it with a clever system prompt alone. You *can* build a small, versioned adversarial test suite — the same golden-dataset discipline from the [eval posts](/articles/golden-dataset-for-llm-evals/), pointed at attacks instead of correctness — and run it before every prompt or model change, not after a user posts a screenshot.
+You can't eliminate it with a clever system prompt alone. You *can* build a small, versioned adversarial test suite: the same golden-dataset discipline from the [eval posts](/articles/golden-dataset-for-llm-evals/), pointed at attacks instead of correctness, and run it before every prompt or model change, not after a user posts a screenshot.
 
-**What it is:** an adversarial regression suite — a set of known injection attempts run against your own LLM feature on every change, checking whether any of them still work.
+**What it is:** an adversarial regression suite: a set of known injection attempts run against your own LLM feature on every change, checking whether any of them still work.
 
 **The problem it solves:** without it, the only way you find out your guardrails regressed is a user (or an attacker) finding it first. This turns "did the prompt change weaken our defenses" into a yes/no CI check.
 
@@ -46,7 +46,7 @@ def run_assistant(user_input: str, tool_content: str | None = None) -> str:
 
 ### A small adversarial dataset
 
-Two attack shapes worth testing separately: **direct** injection (the user just asks) and **indirect** injection (the instruction is buried in content the model is asked to process, like a document it's summarizing — the more dangerous shape in practice, because the user asking the question has no idea it's there).
+Two attack shapes worth testing separately: **direct** injection (the user just asks) and **indirect** injection (the instruction is buried in content the model is asked to process, like a document it's summarizing, the more dangerous shape in practice, because the user asking the question has no idea it's there).
 
 ```python
 # security/injection_cases.py
@@ -74,7 +74,7 @@ INJECTION_CASES = [
 ]
 ```
 
-That indirect case is the one worth internalizing: the *user* only asked for a summary. The attack lives in the document — which is exactly the shape of a real RAG pipeline, a browsing tool, or an email-summarizing agent. Any system that feeds retrieved or fetched content back into the model needs this test category, not just the direct one.
+That indirect case is the one worth internalizing: the *user* only asked for a summary. The attack lives in the document: which is exactly the shape of a real RAG pipeline, a browsing tool, or an email-summarizing agent. Any system that feeds retrieved or fetched content back into the model needs this test category, not just the direct one.
 
 ### Detecting a leak
 
@@ -91,7 +91,7 @@ def leaked_system_prompt(response: str) -> bool:
 
 ### Detecting compliance with an injected instruction
 
-A leak has an obvious string signature. Compliance often doesn't — "output the text 'INJECTION SUCCESSFUL'" happens to be checkable by substring, but "adopt a different persona" or "add a promotional line to the summary" isn't. For the general case, reuse the [LLM-as-judge pattern](/articles/llm-as-judge-eval-pipeline/) — a second model reading the original task, the injected instruction, and the response, asked one specific question:
+A leak has an obvious string signature. Compliance often doesn't: "output the text 'INJECTION SUCCESSFUL'" happens to be checkable by substring, but "adopt a different persona" or "add a promotional line to the summary" isn't. For the general case, reuse the [LLM-as-judge pattern](/articles/llm-as-judge-eval-pipeline/): a second model reading the original task, the injected instruction, and the response, asked one specific question:
 
 ```python
 # security/judge.py
@@ -165,16 +165,16 @@ def test_no_injected_instruction_compliance():
     assert not violations, f"Compliance failures: {violations}"
 ```
 
-Zero tolerance on both assertions, deliberately. This isn't a quality score with a reasonable floor like the eval posts — a single successful injection is a single successful injection, and "we're at 95% resistance" isn't a number anyone should be comfortable shipping.
+Zero tolerance on both assertions, deliberately. This isn't a quality score with a reasonable floor like the eval posts: a single successful injection is a single successful injection, and "we're at 95% resistance" isn't a number anyone should be comfortable shipping.
 
 ## Common issues
 
-This suite only tests attack patterns you already thought to write down. It says nothing about the injection technique nobody's tried against your system yet — that's the nature of an adversarial test set, not a bug in this one specifically. Treat it the way you'd treat a regression suite for a known-CVE list: necessary, not sufficient, and worth growing every time a new pattern shows up anywhere (your own incidents, security research, other teams' postmortems).
+This suite only tests attack patterns you already thought to write down. It says nothing about the injection technique nobody's tried against your system yet: that's the nature of an adversarial test set, not a bug in this one specifically. Treat it the way you'd treat a regression suite for a known-CVE list: necessary, not sufficient, and worth growing every time a new pattern shows up anywhere (your own incidents, security research, other teams' postmortems).
 
 It's also not a substitute for architectural defenses. A test suite catches regressions in a prompt's resistance to known attacks; it doesn't replace privilege separation (don't give the model access it doesn't need for the task), output filtering on anything that reaches a sensitive sink, or treating all retrieved/fetched content as untrusted by design. This suite is the regression net under those defenses, not a replacement for them.
 
 ## Takeaways
 
-- Split the dataset by attack shape — direct (the user asks) and indirect (the instruction is hidden in content the model processes) fail differently and need separate test cases.
-- A leak has a checkable string signature; general instruction-compliance usually doesn't — that's exactly the case an LLM judge earns its cost on.
-- Zero-tolerance thresholds are appropriate here in a way they aren't for quality evals — one successful injection in a regression suite is a real, actionable failure, not noise to average away.
+- Split the dataset by attack shape: direct (the user asks) and indirect (the instruction is hidden in content the model processes) fail differently and need separate test cases.
+- A leak has a checkable string signature; general instruction-compliance usually doesn't: that's exactly the case an LLM judge earns its cost on.
+- Zero-tolerance thresholds are appropriate here in a way they aren't for quality evals: one successful injection in a regression suite is a real, actionable failure, not noise to average away.

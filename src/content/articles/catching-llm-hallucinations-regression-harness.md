@@ -1,14 +1,14 @@
 ---
 title: "Catching LLM Hallucinations With a Regression Harness"
-description: "A pytest harness that runs the same prompts across model calls, snapshots the outputs, and flags drift automatically — so a silent hallucination regression doesn't ship unnoticed."
+description: "A pytest harness that runs the same prompts across model calls, snapshots the outputs, and flags drift automatically, so a silent hallucination regression doesn't ship unnoticed."
 pubDate: 2026-07-23
 category: evaluation
 tags: ["Python", "pytest", "LLM evals"]
 ---
 
-Unit tests assume a function returns the same output for the same input. LLM calls break that assumption on purpose — ask the same question twice and you can get two different, both-defensible answers. That's fine for a chatbot. It's a problem the moment an LLM call sits inside a pipeline someone depends on: a support-ticket classifier, a summarizer, a regex explainer bolted onto a linter. When you swap model versions, tweak a prompt, or just get unlucky on a temperature roll, you want to know whether the output *drifted* — and you want to know in CI, not from a user's bug report.
+Unit tests assume a function returns the same output for the same input. LLM calls break that assumption on purpose: ask the same question twice and you can get two different, both-defensible answers. That's fine for a chatbot. It's a problem the moment an LLM call sits inside a pipeline someone depends on: a support-ticket classifier, a summarizer, a regex explainer bolted onto a linter. When you swap model versions, tweak a prompt, or just get unlucky on a temperature roll, you want to know whether the output *drifted*, and you want to know in CI, not from a user's bug report.
 
-A regression harness gives you that signal cheaply: run each prompt several times, snapshot the outputs, and diff future runs against the snapshot. It won't catch every hallucination — nothing lexical will — but it catches the failure mode that actually ships most often: a change that quietly makes answers less consistent.
+A regression harness gives you that signal cheaply: run each prompt several times, snapshot the outputs, and diff future runs against the snapshot. It won't catch every hallucination (nothing lexical will) but it catches the failure mode that actually ships most often: a change that quietly makes answers less consistent.
 
 ## The pipeline
 
@@ -68,7 +68,7 @@ def call_model(prompt: str, model: str = "claude-opus-4-8") -> str:
     return "".join(block.text for block in response.content if block.type == "text")
 ```
 
-`model` is a parameter, not a constant — that's what lets the same harness answer "did this drift over time" (rerun against the same model) and "did this drift *because I upgraded*" (rerun against a new model ID and diff both snapshot sets).
+`model` is a parameter, not a constant: that's what lets the same harness answer "did this drift over time" (rerun against the same model) and "did this drift *because I upgraded*" (rerun against a new model ID and diff both snapshot sets).
 
 ## Snapshotting a baseline
 
@@ -93,7 +93,7 @@ def save_baseline(prompt_id: str, outputs: list[str]) -> None:
     snapshot_path(prompt_id).write_text(json.dumps({"outputs": outputs}, indent=2))
 ```
 
-Snapshots are committed to the repo, same as any other fixture. The first run for a prompt has nothing to compare against, so it records one — every run after that has something to hold the line against.
+Snapshots are committed to the repo, same as any other fixture. The first run for a prompt has nothing to compare against, so it records one: every run after that has something to hold the line against.
 
 ## The test
 
@@ -122,7 +122,7 @@ def test_output_stability(prompt_id, prompt):
 
     if not baseline:
         save_baseline(prompt_id, outputs)
-        pytest.skip(f"No baseline for {prompt_id} — recorded {RUNS_PER_PROMPT} runs as the new baseline.")
+        pytest.skip(f"No baseline for {prompt_id}: recorded {RUNS_PER_PROMPT} runs as the new baseline.")
 
     worst = min(
         SequenceMatcher(None, base, out).ratio()
@@ -134,7 +134,7 @@ def test_output_stability(prompt_id, prompt):
     )
 ```
 
-`SequenceMatcher.ratio()` is a lexical similarity score — cheap, deterministic, no extra API calls. Comparing every new output against every baseline output (not just the first one) means the assertion respects the model's normal run-to-run variance instead of getting tripped up by it: the floor only fires when a new run falls outside the range the baseline already demonstrated.
+`SequenceMatcher.ratio()` is a lexical similarity score: cheap, deterministic, no extra API calls. Comparing every new output against every baseline output (not just the first one) means the assertion respects the model's normal run-to-run variance instead of getting tripped up by it: the floor only fires when a new run falls outside the range the baseline already demonstrated.
 
 ## What a flagged run looks like
 
@@ -145,7 +145,7 @@ Two prompts, five runs each, one clean and one flagged:
 | capital-of-france | 5 | 0.98 | pass |
 | regex-explain | 5 | 0.61 | flagged |
 
-The capital-of-france prompt has almost no room to drift — there's one correct answer and a handful of ways to phrase it. The regex-explanation prompt has much more surface area: one run described the pattern as "a US Social Security number," another called it "a phone-number-like ID," and a third just walked through the character classes without naming what it matches. All three are defensible. `SequenceMatcher` doesn't know that — it sees three different strings and scores them low. That's not a false alarm exactly; it's the harness telling you this prompt's output isn't pinned down enough to regression-test lexically, which is useful information on its own.
+The capital-of-france prompt has almost no room to drift: there's one correct answer and a handful of ways to phrase it. The regex-explanation prompt has much more surface area: one run described the pattern as "a US Social Security number," another called it "a phone-number-like ID," and a third just walked through the character classes without naming what it matches. All three are defensible. `SequenceMatcher` doesn't know that: it sees three different strings and scores them low. That's not a false alarm exactly; it's the harness telling you this prompt's output isn't pinned down enough to regression-test lexically, which is useful information on its own.
 
 ## Running it across model versions
 
@@ -156,16 +156,16 @@ $ SNAPSHOT_DIR=snapshots/opus-4-8 MODEL=claude-opus-4-8 pytest tests/test_regres
 $ SNAPSHOT_DIR=snapshots/candidate MODEL=claude-sonnet-5 pytest tests/test_regression.py
 ```
 
-Diff the two snapshot directories and you get a concrete list of exactly which prompts changed behavior under the candidate model — not a vague sense that "the new model feels different," but the specific outputs that differ and by how much.
+Diff the two snapshot directories and you get a concrete list of exactly which prompts changed behavior under the candidate model: not a vague sense that "the new model feels different," but the specific outputs that differ and by how much.
 
 ## Where this breaks down
 
-Lexical similarity catches phrasing drift and gross regressions — an answer that used to be three sentences and is now an apology, a prompt that used to return JSON and now returns prose. It does not catch a fluent, confident, wrong answer that happens to be *worded* like the baseline. Two responses can score 0.95 on `SequenceMatcher` and differ in the one number that matters.
+Lexical similarity catches phrasing drift and gross regressions: an answer that used to be three sentences and is now an apology, a prompt that used to return JSON and now returns prose. It does not catch a fluent, confident, wrong answer that happens to be *worded* like the baseline. Two responses can score 0.95 on `SequenceMatcher` and differ in the one number that matters.
 
-That's a real limitation, not a rounding error, and it's the reason this harness is a floor, not a ceiling. The fix is a judge that reads for *meaning* instead of *characters* — a second model scoring each output against a rubric instead of against a string. That's a harder problem (judges have their own biases and blind spots), and it's next on the list here.
+That's a real limitation, not a rounding error, and it's the reason this harness is a floor, not a ceiling. The fix is a judge that reads for *meaning* instead of *characters*: a second model scoring each output against a rubric instead of against a string. That's a harder problem (judges have their own biases and blind spots), and it's next on the list here.
 
 ## Takeaways
 
-- Nondeterminism isn't a reason to skip testing LLM output — it's a reason to test the *range* of output instead of a single expected value.
+- Nondeterminism isn't a reason to skip testing LLM output: it's a reason to test the *range* of output instead of a single expected value.
 - Snapshot against every recorded baseline run, not just the first one, or you'll flag normal variance as drift.
-- Lexical diffing is cheap and catches real regressions, but it's blind to confident, well-phrased wrongness — pair it with a semantic check before you trust it fully.
+- Lexical diffing is cheap and catches real regressions, but it's blind to confident, well-phrased wrongness: pair it with a semantic check before you trust it fully.

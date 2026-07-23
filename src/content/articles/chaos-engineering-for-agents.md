@@ -1,14 +1,14 @@
 ---
 title: "Chaos Monkey for Agents: Breaking Tool Calls on Purpose"
-description: "The Testing LangGraph Agents post proved the graph is wired correctly under ideal conditions. Real tools fail — timeouts, malformed responses, outages. Inject those failures on purpose and verify the agent degrades gracefully instead of crashing or looping forever."
+description: "The Testing LangGraph Agents post proved the graph is wired correctly under ideal conditions. Real tools fail: timeouts, malformed responses, outages. Inject those failures on purpose and verify the agent degrades gracefully instead of crashing or looping forever."
 pubDate: 2026-07-23
 category: reliability
 tags: ["LangGraph", "chaos engineering", "Python"]
 ---
 
-The [LangGraph testing post](/articles/testing-langgraph-agents/) proved the agent's graph is wired correctly: the right node runs, the right tool gets called, the loop terminates on a clean answer. All of that assumed the tool actually works. In production, tools fail — a weather API times out, a search backend returns malformed JSON, a rate limit kicks in mid-conversation. An agent that's never been tested against a failing tool has an unknown, and probably bad, answer to "what happens then."
+The [LangGraph testing post](/articles/testing-langgraph-agents/) proved the agent's graph is wired correctly: the right node runs, the right tool gets called, the loop terminates on a clean answer. All of that assumed the tool actually works. In production, tools fail: a weather API times out, a search backend returns malformed JSON, a rate limit kicks in mid-conversation. An agent that's never been tested against a failing tool has an unknown, and probably bad, answer to "what happens then."
 
-**What it is:** chaos engineering's core method — deliberately inject a failure and observe the system's response — applied to an agent's tool calls instead of infrastructure.
+**What it is:** chaos engineering's core method (deliberately inject a failure and observe the system's response) applied to an agent's tool calls instead of infrastructure.
 
 **The problem it solves:** "the happy path works" tells you nothing about whether the agent crashes, hangs, or silently corrupts state the one time a tool call fails. That's exactly the case that shows up in production and never shows up in a demo.
 
@@ -35,7 +35,7 @@ def flaky(fn, failure_rate: float):
 
 ### The agent, with one flaky tool
 
-`ToolNode` has built-in error handling — by default it catches an exception raised inside a tool and returns it to the model as a `ToolMessage` instead of letting it crash the graph. That default is what makes the rest of this testable at all: a failing tool becomes information the agent can react to, not a stack trace.
+`ToolNode` has built-in error handling: by default it catches an exception raised inside a tool and returns it to the model as a `ToolMessage` instead of letting it crash the graph. That default is what makes the rest of this testable at all: a failing tool becomes information the agent can react to, not a stack trace.
 
 ```python
 # agent/chaos_graph.py
@@ -69,7 +69,7 @@ class State(TypedDict):
 def call_model(state: State) -> dict:
     system = SystemMessage(
         "You are a support assistant. If a tool call fails, apologize once and tell "
-        "the user you're unable to complete the request right now — do not retry silently forever."
+        "the user you're unable to complete the request right now: do not retry silently forever."
     )
     response = model.invoke([system, *state["messages"]])
     return {"messages": [response]}
@@ -85,17 +85,17 @@ graph_builder.add_edge("tools", "agent")
 graph = graph_builder.compile()
 ```
 
-The system prompt explicitly tells the model to stop after a failure instead of retrying forever — that instruction is itself something worth testing, not just trusting, which is exactly what the next section does.
+The system prompt explicitly tells the model to stop after a failure instead of retrying forever: that instruction is itself something worth testing, not just trusting, which is exactly what the next section does.
 
 ## Common issues
 
-A model can (and sometimes will) treat a tool failure the same way it treats an ambiguous result: try again. Left unchecked, "call a tool, see it fail, call it again" can loop for as long as the graph lets it — burning tokens and latency on a request that was never going to succeed. Graceful degradation isn't automatic just because `ToolNode` doesn't crash; the agent still needs a path to actually stop.
+A model can (and sometimes will) treat a tool failure the same way it treats an ambiguous result: try again. Left unchecked, "call a tool, see it fail, call it again" can loop for as long as the graph lets it: burning tokens and latency on a request that was never going to succeed. Graceful degradation isn't automatic just because `ToolNode` doesn't crash; the agent still needs a path to actually stop.
 
-The other common gap is treating "doesn't crash" as the whole bar. A graph that survives a tool failure but returns an empty or nonsensical final message hasn't actually degraded gracefully — it's just failed in a way that didn't raise an exception.
+The other common gap is treating "doesn't crash" as the whole bar. A graph that survives a tool failure but returns an empty or nonsensical final message hasn't actually degraded gracefully: it's just failed in a way that didn't raise an exception.
 
 ## What to test, and how
 
-**The worst case: a model that never gives up.** LangGraph's `recursion_limit` is the safety net under an agent that keeps retrying — cap the steps and assert the graph trips the limit instead of running forever:
+**The worst case: a model that never gives up.** LangGraph's `recursion_limit` is the safety net under an agent that keeps retrying: cap the steps and assert the graph trips the limit instead of running forever:
 
 ```python
 # tests/test_chaos_structural.py
@@ -146,7 +146,7 @@ class GivesUpAfterFailureModel:
             return AIMessage(content="", tool_calls=[
                 {"name": "get_weather", "args": {"location": "Boston"}, "id": "call_1"}
             ])
-        return AIMessage(content="I wasn't able to check the weather right now — please try again shortly.")
+        return AIMessage(content="I wasn't able to check the weather right now: please try again shortly.")
 
 
 def test_graph_recovers_gracefully_from_a_single_tool_failure(monkeypatch):
@@ -163,14 +163,14 @@ def test_graph_recovers_gracefully_from_a_single_tool_failure(monkeypatch):
     assert "try again" in result["messages"][-1].content.lower()
 ```
 
-Both tests are fully deterministic and API-free — same scripted-model pattern as the [structural tests in the LangGraph post](/articles/testing-langgraph-agents/), pointed at failure paths instead of the happy path.
+Both tests are fully deterministic and API-free: same scripted-model pattern as the [structural tests in the LangGraph post](/articles/testing-langgraph-agents/), pointed at failure paths instead of the happy path.
 
 Common issues these two tests are built to catch is worth stating for a broader takeaway: without the recursion-limit test, a pathological model can burn an unbounded budget retrying a dead tool; without the recovery test, "doesn't crash" can hide a final answer that's blank, garbled, or stuck mid-thought.
 
-This only covers one failure shape — a tool that raises an exception synchronously. Real backends also hang without ever raising (a timeout, not an exception) and return malformed-but-valid data (a 200 response with a corrupted payload) — both need different injection techniques (an async timeout wrapper, a mangled fixture response) and aren't exercised by anything here.
+This only covers one failure shape: a tool that raises an exception synchronously. Real backends also hang without ever raising (a timeout, not an exception) and return malformed-but-valid data (a 200 response with a corrupted payload): both need different injection techniques (an async timeout wrapper, a mangled fixture response) and aren't exercised by anything here.
 
 ## Takeaways
 
-- `ToolNode`'s default error handling turns a tool exception into information the agent can act on — but "doesn't crash" and "recovers gracefully" are two different claims, and only the second one is worth trusting without a test.
+- `ToolNode`'s default error handling turns a tool exception into information the agent can act on, but "doesn't crash" and "recovers gracefully" are two different claims, and only the second one is worth trusting without a test.
 - Test the worst case explicitly: a model that never stops retrying needs a recursion limit to catch it, and that limit needs its own test, not just an assumption that it's configured.
-- A scripted fake model that fails once and a scripted fake model that never gives up are two different, cheap, deterministic tests — write both.
+- A scripted fake model that fails once and a scripted fake model that never gives up are two different, cheap, deterministic tests: write both.

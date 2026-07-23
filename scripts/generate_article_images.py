@@ -24,13 +24,13 @@ OUTPUT_PRICE_PER_M = 60.00  # $ per 1M output tokens (image), standard tier
 
 STYLE = (
     "A bold, catchy, fun flat character illustration for a software "
-    "engineering blog about testing LLMs and AI systems — modern flat "
+    "engineering blog about testing LLMs and AI systems, modern flat "
     "illustration style with a friendly human character, like the "
     "illustrations on Slack, Mailchimp, or Dropbox's websites. Feature a "
     "simply-drawn person (expressive pose, simple friendly face, casual "
     "clothes) actively interacting with a computer, laptop, or giant screen. "
     "Playful and energetic, NOT corporate or stiff. The background is a "
-    "solid, rich, saturated color — not white, not light gray — filling the "
+    "solid, rich, saturated color, not white, not light gray, filling the "
     "frame edge to edge. Bold saturated colors throughout, strong contrast. "
     "No text, no letters, no numbers, no UI chrome in the image."
 )
@@ -90,7 +90,7 @@ def main() -> None:
     load_env()
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise SystemExit("GEMINI_API_KEY not set — add it to .env first.")
+        raise SystemExit("GEMINI_API_KEY not set: add it to .env first.")
 
     client = genai.Client(api_key=api_key)
     ARTICLES_DIR.mkdir(parents=True, exist_ok=True)
@@ -138,7 +138,7 @@ def main() -> None:
     print()
     print(f"Done. Generated {generated} image(s), {len(failed)} failed. Total cost: ${total_cost:.4f}")
     if failed:
-        print(f"Failed: {', '.join(failed)} — re-run the script to retry just these (existing images are skipped).")
+        print(f"Failed: {', '.join(failed)}. Re-run the script to retry just these (existing images are skipped).")
 
 
 if __name__ == "__main__":

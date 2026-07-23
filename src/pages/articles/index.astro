@@ -8,17 +8,17 @@ const articles = (await getCollection('articles', ({ data }) => !data.draft))
 ---
 <BaseLayout
   title="Articles"
-  description="Deep-dives on testing software with AI, and testing AI itself &#8212; with runnable code, not slideware."
+  description="Deep-dives on testing software with AI, and testing AI itself, with runnable code, not slideware."
   active="articles"
 >
   <div class="wrap pagehead">
     <div class="eyebrow">Articles</div>
     <h1 class="h-sec">Deep-dives, with runnable code.</h1>
-    <p class="sub">Where AI meets QA in practice &#8212; regression harnesses, evaluation pipelines, and the occasional argument with a flaky test.</p>
+    <p class="sub">Where AI meets QA in practice: regression harnesses, evaluation pipelines, and the occasional argument with a flaky test.</p>
   </div>
   <div class="wrap sect-tight">
     {articles.length === 0 ? (
-      <p class="sub">Nothing published yet &#8212; check back soon.</p>
+      <p class="sub">Nothing published yet. Check back soon.</p>
     ) : (
       <div class="grid-2">
         {articles.map((post) => (
