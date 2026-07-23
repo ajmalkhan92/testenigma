@@ -63,13 +63,38 @@ graph_builder.add_edge("tools", "agent")
 graph = graph_builder.compile()
 ```
 
-```mermaid
-flowchart LR
-  START(["START"]) --> Agent["agent node — calls the model"]
-  Agent -- "tool_calls present" --> Tools["tools node — runs the tool"]
-  Agent -- "no tool_calls" --> END(["END"])
-  Tools --> Agent
-```
+<div class="mermaid-wrap">
+<svg viewBox="0 0 560 240" role="img" aria-label="Flowchart: START leads to the agent node, which either loops to the tools node when tool calls are present and back, or ends when there are none.">
+<defs>
+<marker id="dg2arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+</marker>
+</defs>
+<style>
+.dg2-node{fill:var(--card);stroke:var(--border-2);stroke-width:1.5}
+.dg2-endpoint{fill:var(--bg-2);stroke:var(--border-2);stroke-width:1.5}
+.dg2-text{fill:var(--text);font-family:var(--sans);font-size:13px}
+.dg2-edge{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#dg2arrow)}
+.dg2-label{fill:var(--faint);font-family:var(--mono);font-size:10px}
+</style>
+<ellipse class="dg2-endpoint" cx="55" cy="52" rx="38" ry="24"/>
+<text class="dg2-text" x="55" y="57" text-anchor="middle">START</text>
+<path class="dg2-edge" d="M93,52 H148"/>
+<rect class="dg2-node" x="150" y="28" width="200" height="48" rx="8"/>
+<text class="dg2-text" x="250" y="48" text-anchor="middle">agent node</text>
+<text class="dg2-text" x="250" y="64" text-anchor="middle">calls the model</text>
+<path class="dg2-edge" d="M350,52 H418"/>
+<text class="dg2-label" x="358" y="42">no tool_calls</text>
+<ellipse class="dg2-endpoint" cx="460" cy="52" rx="34" ry="24"/>
+<text class="dg2-text" x="460" y="57" text-anchor="middle">END</text>
+<path class="dg2-edge" d="M230,76 V148"/>
+<rect class="dg2-node" x="150" y="150" width="200" height="48" rx="8"/>
+<text class="dg2-text" x="250" y="170" text-anchor="middle">tools node</text>
+<text class="dg2-text" x="250" y="186" text-anchor="middle">runs the tool</text>
+<text class="dg2-label" x="238" y="115">tool_calls present</text>
+<path class="dg2-edge" d="M270,150 V78"/>
+</svg>
+</div>
 
 `tools_condition` is a prebuilt LangGraph helper: it looks at the last message and routes to `"tools"` if the model asked for a tool call, or ends the graph if it didn't. That single function is also the reason this agent is testable at three different levels — it's a pure routing decision you can call directly with a fabricated message, with no model involved.
 

@@ -12,13 +12,40 @@ A regression harness gives you that signal cheaply: run each prompt several time
 
 ## The pipeline
 
-```mermaid
-flowchart LR
-  A[Prompt] --> B[Call model N times]
-  B --> C[Diff vs. baseline snapshot]
-  C -->|similarity above floor| D[Pass]
-  C -->|similarity below floor| E[Flag drift]
-```
+<div class="mermaid-wrap">
+<svg viewBox="0 0 800 200" role="img" aria-label="Flowchart: Prompt leads to calling the model N times, then diffing against the baseline snapshot, which either passes or flags drift.">
+<defs>
+<marker id="dg1arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+</marker>
+</defs>
+<style>
+.dg1-node{fill:var(--card);stroke:var(--border-2);stroke-width:1.5}
+.dg1-good{stroke:var(--good)}
+.dg1-bad{stroke:var(--bad)}
+.dg1-text{fill:var(--text);font-family:var(--sans);font-size:13px}
+.dg1-edge{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#dg1arrow)}
+.dg1-label{fill:var(--faint);font-family:var(--mono);font-size:10px}
+</style>
+<rect class="dg1-node" x="10" y="78" width="100" height="44" rx="8"/>
+<text class="dg1-text" x="60" y="105" text-anchor="middle">Prompt</text>
+<path class="dg1-edge" d="M110,100 H158"/>
+<rect class="dg1-node" x="160" y="78" width="170" height="44" rx="8"/>
+<text class="dg1-text" x="245" y="105" text-anchor="middle">Call model N times</text>
+<path class="dg1-edge" d="M330,100 H378"/>
+<rect class="dg1-node" x="380" y="78" width="190" height="44" rx="8"/>
+<text class="dg1-text" x="475" y="96" text-anchor="middle">Diff vs. baseline</text>
+<text class="dg1-text" x="475" y="112" text-anchor="middle">snapshot</text>
+<path class="dg1-edge" d="M570,90 C610,90 610,40 648,40"/>
+<text class="dg1-label" x="575" y="62">similarity &#8805; floor</text>
+<rect class="dg1-node dg1-good" x="650" y="18" width="100" height="40" rx="8"/>
+<text class="dg1-text" x="700" y="43" text-anchor="middle">Pass</text>
+<path class="dg1-edge" d="M570,110 C610,110 610,160 648,160"/>
+<text class="dg1-label" x="575" y="152">similarity &lt; floor</text>
+<rect class="dg1-node dg1-bad" x="650" y="138" width="120" height="40" rx="8"/>
+<text class="dg1-text" x="710" y="163" text-anchor="middle">Flag drift</text>
+</svg>
+</div>
 
 Three pieces: a thin client that calls the model, a snapshot store for "what a good answer used to look like," and a pytest test that fails loudly when a new run drifts too far from the baseline.
 

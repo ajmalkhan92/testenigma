@@ -23,6 +23,7 @@ const articles = (await getCollection('articles', ({ data }) => !data.draft))
       <div class="grid-2">
         {articles.map((post) => (
           <a class="card acard reveal" href={`/articles/${post.id}/`}>
+            <img class="acard-image" src={`/images/articles/${post.id}.jpg`} alt="" width="688" height="387" loading="lazy" />
             <div class="chips">{post.data.tags.map((t: string) => <span class="chip">{t}</span>)}</div>
             <h3>{post.data.title}</h3>
             <p>{post.data.description}</p>

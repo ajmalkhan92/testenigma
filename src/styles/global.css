@@ -7,7 +7,7 @@
 
   --bg:#FFFFFF; --bg-2:#F6F6F7; --card:#FFFFFF; --card-2:#FAFAFA;
   --border:rgba(0,0,0,.1); --border-2:rgba(0,0,0,.18);
-  --text:#111111; --text-soft:#333333; --muted:#666666; --faint:#8A8A8E;
+  --text:#111111; --text-soft:#333333; --muted:#666666; --faint:#6B6B70;
   --accent:#2F5FE0; --accent-2:#1E44AD; --accent-ink:#FFFFFF;
   --accent-dim:#EBF1FD; --glow:rgba(47,95,224,.16);
   --good:#1F8A4C; --bad:#C4392B;
@@ -22,7 +22,7 @@
   :root{
     --bg:#0B0B0C; --bg-2:#151517; --card:#151517; --card-2:#19191C;
     --border:rgba(255,255,255,.12); --border-2:rgba(255,255,255,.2);
-    --text:#F2F2F3; --text-soft:#D6D6D9; --muted:#98989E; --faint:#6C6C72;
+    --text:#F2F2F3; --text-soft:#D6D6D9; --muted:#98989E; --faint:#8C8C92;
     --accent:#6C93F5; --accent-2:#8FAEF8; --accent-ink:#0B1220;
     --accent-dim:#16223F; --glow:rgba(108,147,245,.18);
     --good:#39B871; --bad:#DD6656;
@@ -36,7 +36,7 @@
 :root[data-theme="light"]{
   --bg:#FFFFFF; --bg-2:#F6F6F7; --card:#FFFFFF; --card-2:#FAFAFA;
   --border:rgba(0,0,0,.1); --border-2:rgba(0,0,0,.18);
-  --text:#111111; --text-soft:#333333; --muted:#666666; --faint:#8A8A8E;
+  --text:#111111; --text-soft:#333333; --muted:#666666; --faint:#6B6B70;
   --accent:#2F5FE0; --accent-2:#1E44AD; --accent-ink:#FFFFFF;
   --accent-dim:#EBF1FD; --glow:rgba(47,95,224,.16);
   --good:#1F8A4C; --bad:#C4392B;
@@ -49,7 +49,7 @@
 :root[data-theme="dark"]{
   --bg:#0B0B0C; --bg-2:#151517; --card:#151517; --card-2:#19191C;
   --border:rgba(255,255,255,.12); --border-2:rgba(255,255,255,.2);
-  --text:#F2F2F3; --text-soft:#D6D6D9; --muted:#98989E; --faint:#6C6C72;
+  --text:#F2F2F3; --text-soft:#D6D6D9; --muted:#98989E; --faint:#8C8C92;
   --accent:#6C93F5; --accent-2:#8FAEF8; --accent-ink:#0B1220;
   --accent-dim:#16223F; --glow:rgba(108,147,245,.18);
   --good:#39B871; --bad:#DD6656;
@@ -230,6 +230,11 @@ a.card:hover, button.card:hover{border-color:var(--accent)}
 
 /* article cards */
 .acard{cursor:pointer; text-align:left; width:100%}
+.acard-image{
+  display:block; width:calc(100% + 56px); margin:-28px -28px 20px -28px;
+  aspect-ratio:16/9; object-fit:cover; border-radius:14px 14px 0 0;
+  background:var(--bg-2);
+}
 .chips{display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px}
 .chip{
   font-family:var(--sans); font-size:.72rem; font-weight:700; letter-spacing:0; color:var(--accent);
@@ -273,6 +278,10 @@ a.card:hover, button.card:hover{border-color:var(--accent)}
 .art-head{padding:56px 0 0; max-width:820px}
 .art-head h1{font-size:clamp(1.9rem,4.4vw,2.9rem); font-weight:800; letter-spacing:-.03em; line-height:1.14; margin:18px 0}
 .art-head .desc{color:var(--muted); font-size:1.08rem; max-width:62ch; margin:0 0 22px}
+.art-hero-image{
+  display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:cover;
+  border-radius:16px; border:1px solid var(--border); margin:36px 0 0; background:var(--bg-2);
+}
 .art-layout{display:grid; grid-template-columns:minmax(0,1fr) 236px; gap:60px; padding:44px 0 40px}
 @media (max-width:1020px){ .art-layout{grid-template-columns:1fr; gap:0} .toc-side{display:none} }
 .prose{max-width:72ch; min-width:0}

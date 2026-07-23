@@ -15,14 +15,19 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 const minutes = readingTime(post.body || '');
+const coverImage = `/images/articles/${post.id}.jpg`;
 ---
-<BaseLayout title={post.data.title} description={post.data.description} active="articles">
+<BaseLayout title={post.data.title} description={post.data.description} active="articles" ogImage={coverImage}>
   <div class="wrap art-head">
     <a class="backlink" href="/articles/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg> All articles</a>
     <div class="chips">{post.data.tags.map((t: string) => <span class="chip">{t}</span>)}</div>
     <h1>{post.data.title}</h1>
     <p class="desc">{post.data.description}</p>
     <div class="meta"><span>Ajmal Khan</span><span class="sep">&#183;</span><span>{formatDate(post.data.pubDate)}</span><span class="sep">&#183;</span><span>~{minutes}</span></div>
+  </div>
+
+  <div class="wrap">
+    <img class="art-hero-image" src={coverImage} alt="" width="1376" height="768" />
   </div>
 
   <div class="wrap art-layout">

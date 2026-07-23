@@ -9,7 +9,7 @@ interface Props {
   active: 'home' | 'articles' | 'learn' | 'services' | 'about';
   ogImage?: string;
 }
-const { title, description, active, ogImage = '/og-default.png' } = Astro.props;
+const { title, description, active, ogImage = '/og-default.jpg' } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const fullTitle = active === 'home' ? title : `${title} — TestEnigma`;
 ---
@@ -62,42 +62,12 @@ const fullTitle = active === 'home' ? title : `${title} — TestEnigma`;
     function currentTheme() {
       return root.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     }
-    let mermaidEntries: { container: HTMLElement; src: string }[] = [];
-    function paintMermaid() {
-      if (!mermaidEntries.length) return;
-      import('mermaid').then(({ default: mermaid }) => {
-        const dark = currentTheme() === 'dark';
-        mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'strict' });
-        mermaidEntries.forEach(async ({ container, src }, i) => {
-          try {
-            const { svg } = await mermaid.render(`mmd-${i}-${Date.now()}`, src);
-            container.innerHTML = svg;
-            container.classList.remove('loading');
-          } catch (err) {
-            container.textContent = 'Diagram failed to render.';
-          }
-        });
-      });
-    }
-
     const themeBtn = document.getElementById('themetoggle');
     themeBtn?.addEventListener('click', () => {
       const next = currentTheme() === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('theme', next); } catch (e) {}
-      paintMermaid();
     });
-
-    // mermaid diagrams: replace fenced ```mermaid code blocks with rendered SVG
-    document.querySelectorAll('.prose pre.astro-code[data-language="mermaid"]').forEach((pre) => {
-      const src = pre.textContent || '';
-      const wrap = document.createElement('div');
-      wrap.className = 'mermaid-wrap loading';
-      wrap.textContent = 'Rendering diagram…';
-      pre.replaceWith(wrap);
-      mermaidEntries.push({ container: wrap, src });
-    });
-    paintMermaid();
 
     const navEl = document.getElementById('nav');
     const burger = document.getElementById('burger');

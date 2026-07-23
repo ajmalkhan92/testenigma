@@ -91,6 +91,7 @@ const latest = allArticles.slice(0, 3);
         <div class="grid-3">
           {latest.map((post, i) => (
             <a class="card acard reveal" style={`--d:${i * 0.1}s`} href={`/articles/${post.id}/`}>
+              <img class="acard-image" src={`/images/articles/${post.id}.jpg`} alt="" width="688" height="387" loading="lazy" />
               <div class="chips">{post.data.tags.slice(0, 2).map((t: string) => <span class="chip">{t}</span>)}</div>
               <h3>{post.data.title}</h3>
               <p>{post.data.description}</p>

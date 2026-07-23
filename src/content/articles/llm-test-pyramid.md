@@ -12,14 +12,29 @@ LLM-powered systems don't break that shape, but they do add layers most teams ha
 
 ## The six layers
 
-```mermaid
-flowchart TD
-  A["1. Deterministic unit tests — no model calls"] --> B["2. Component evals — golden dataset, single call"]
-  B --> C["3. Regression harness — drift detection"]
-  C --> D["4. LLM-as-judge evals — semantic scoring"]
-  D --> E["5. End-to-end agent evals — multi-turn, tool use"]
-  E --> F["6. Human spot-check — sampled production review"]
-```
+<div class="mermaid-wrap">
+<svg viewBox="0 0 640 500" role="img" aria-label="Six-layer pyramid: deterministic unit tests, component evals, regression harness, LLM-as-judge evals, end-to-end agent evals, human spot-check, from bottom to top.">
+<defs><marker id="dg3arrow" viewBox="0 0 10 10" refX="5" refY="8" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,0 L5,10 z" fill="var(--muted)"/></marker></defs>
+<style>.dg3-node{fill:var(--card);stroke:var(--border-2);stroke-width:1.5}.dg3-text{fill:var(--text);font-family:var(--sans);font-size:13px}.dg3-edge{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#dg3arrow)}</style>
+<rect class="dg3-node" x="20" y="10" width="600" height="56" rx="10"/>
+<text class="dg3-text" x="320" y="42" text-anchor="middle">1. Deterministic unit tests &#8212; no model calls</text>
+<path class="dg3-edge" d="M320,66 V86"/>
+<rect class="dg3-node" x="20" y="88" width="600" height="56" rx="10"/>
+<text class="dg3-text" x="320" y="120" text-anchor="middle">2. Component evals &#8212; golden dataset, single call</text>
+<path class="dg3-edge" d="M320,144 V164"/>
+<rect class="dg3-node" x="20" y="166" width="600" height="56" rx="10"/>
+<text class="dg3-text" x="320" y="198" text-anchor="middle">3. Regression harness &#8212; drift detection</text>
+<path class="dg3-edge" d="M320,222 V242"/>
+<rect class="dg3-node" x="20" y="244" width="600" height="56" rx="10"/>
+<text class="dg3-text" x="320" y="276" text-anchor="middle">4. LLM-as-judge evals &#8212; semantic scoring</text>
+<path class="dg3-edge" d="M320,300 V320"/>
+<rect class="dg3-node" x="20" y="322" width="600" height="56" rx="10"/>
+<text class="dg3-text" x="320" y="354" text-anchor="middle">5. End-to-end agent evals &#8212; multi-turn, tool use</text>
+<path class="dg3-edge" d="M320,378 V398"/>
+<rect class="dg3-node" x="20" y="400" width="600" height="56" rx="10"/>
+<text class="dg3-text" x="320" y="432" text-anchor="middle">6. Human spot-check &#8212; sampled production review</text>
+</svg>
+</div>
 
 | Layer | What it checks | Model calls? | Runs |
 |---|---|---|---|
