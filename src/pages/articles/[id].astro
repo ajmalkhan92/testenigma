@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Giscus from '../../components/Giscus.astro';
+import { getCollection, render } from 'astro:content';
+import { readingTime, formatDate } from '../../lib/readingTime';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  return articles.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const minutes = readingTime(post.body || '');
+---
+<BaseLayout title={post.data.title} description={post.data.description} active="articles">
+  <div class="wrap art-head">
+    <a class="backlink" href="/articles/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg> All articles</a>
+    <div class="chips">{post.data.tags.map((t: string) => <span class="chip">{t}</span>)}</div>
+    <h1>{post.data.title}</h1>
+    <p class="desc">{post.data.description}</p>
+    <div class="meta"><span>Ajmal Khan</span><span class="sep">&#183;</span><span>{formatDate(post.data.pubDate)}</span><span class="sep">&#183;</span><span>~{minutes}</span></div>
+  </div>
+
+  <div class="wrap art-layout">
+    <article class="prose">
+      <details class="toc-m">
+        <summary>On this page</summary>
+        <div class="toc-list"></div>
+      </details>
+
+      <Content />
+
+      <div class="endmatter">
+        <div class="author-card">
+          <div class="avatar">AK</div>
+          <div>
+            <div class="ac-name">Ajmal Khan</div>
+            <p>Testing software with AI, and testing AI itself. <a href="https://www.linkedin.com/in/ajmal-khan-98254871/" target="_blank" rel="noopener">LinkedIn</a> &#183; <a href="https://github.com/ajmalkhan92" target="_blank" rel="noopener">GitHub</a></p>
+          </div>
+        </div>
+        <Giscus />
+      </div>
+    </article>
+
+    <aside class="toc-side" aria-label="Table of contents">
+      <div class="toc-title">On this page</div>
+      <div class="toc-list"></div>
+    </aside>
+  </div>
+</BaseLayout>

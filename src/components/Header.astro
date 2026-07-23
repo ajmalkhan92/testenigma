@@ -1,0 +1,43 @@
+---
+interface Props {
+  active: 'home' | 'articles' | 'learn' | 'services' | 'about';
+}
+const { active } = Astro.props;
+const links = [
+  { href: '/', label: 'Home', key: 'home' },
+  { href: '/articles/', label: 'Articles', key: 'articles' },
+  { href: '/learn/', label: 'Learn', key: 'learn' },
+  { href: '/services/', label: 'Services', key: 'services' },
+  { href: '/about/', label: 'About', key: 'about' },
+];
+---
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/" aria-label="TestEnigma home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2.2l8.5 4.9v9.8L12 21.8l-8.5-4.9V7.1z"></path>
+        <path d="M8.4 12.2l2.5 2.5 4.7-5.2"></path>
+      </svg>
+      <span>Test<span class="grad">Enigma</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      {links.map(l => <a href={l.href} class={active === l.key ? 'on' : ''}>{l.label}</a>)}
+    </nav>
+    <div class="nav-actions">
+      <a class="iconbtn" href="/search/" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.8-3.8"></path></svg>
+      </a>
+      <button class="iconbtn" id="themetoggle" aria-label="Toggle theme">
+        <svg class="tt-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5 5l1.6 1.6M17.4 17.4L19 19M19 5l-1.6 1.6M6.6 17.4L5 19"></path></svg>
+        <svg class="tt-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 13.2A8.2 8.2 0 1 1 10.8 3.6a6.6 6.6 0 0 0 9.6 9.6z"></path></svg>
+      </button>
+      <button class="iconbtn burger" id="burger" aria-label="Menu">
+        <svg class="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        <svg class="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+  </div>
+  <div class="nav-panel" id="navpanel">
+    {links.map(l => <a href={l.href} class={active === l.key ? 'on' : ''}>{l.label}</a>)}
+  </div>
+</header>

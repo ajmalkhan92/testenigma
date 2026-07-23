@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { readingTime, formatDate } from '../../lib/readingTime';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<BaseLayout
+  title="Articles"
+  description="Deep-dives on testing software with AI, and testing AI itself &#8212; with runnable code, not slideware."
+  active="articles"
+>
+  <div class="wrap pagehead">
+    <div class="eyebrow">Articles</div>
+    <h1 class="h-sec">Deep-dives, with runnable code.</h1>
+    <p class="sub">Where AI meets QA in practice &#8212; regression harnesses, evaluation pipelines, and the occasional argument with a flaky test.</p>
+  </div>
+  <div class="wrap sect-tight">
+    {articles.length === 0 ? (
+      <p class="sub">Nothing published yet &#8212; check back soon.</p>
+    ) : (
+      <div class="grid-2">
+        {articles.map((post) => (
+          <a class="card acard reveal" href={`/articles/${post.id}/`}>
+            <div class="chips">{post.data.tags.map((t: string) => <span class="chip">{t}</span>)}</div>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+            <div class="meta">
+              <span>{formatDate(post.data.pubDate)}</span><span class="sep">&#183;</span><span>{readingTime(post.body || '')}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>

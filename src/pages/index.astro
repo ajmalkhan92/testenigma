@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { readingTime, formatDate } from '../lib/readingTime';
+
+const allArticles = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const latest = allArticles.slice(0, 3);
+---
+<BaseLayout
+  title="TestEnigma"
+  description="Testing software with AI, and testing AI itself. Notes from the intersection of QA and machine learning."
+  active="home"
+>
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div class="hc">
+        <div><span class="badge">QA &amp; MACHINE LEARNING &#183; LEARN BY DOING</span></div>
+        <h1>Come learn how<br>QA meets <span class="grad">AI.</span></h1>
+        <p class="sub">Structured lessons, deep-dive articles and a podcast &#8212; for testing software with AI, and testing AI itself.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="/learn/">Start your first lesson
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </a>
+          <a class="btn btn-ghost" href="/articles/">Browse articles</a>
+        </div>
+      </div>
+
+      <div class="path-card reveal">
+        {latest.length > 0 ? (
+          <>
+            <div class="pc-head">
+              <span class="pc-label">Latest article</span>
+              <span class="pc-count">{formatDate(latest[0].data.pubDate)}</span>
+            </div>
+            <h3>{latest[0].data.title}</h3>
+            <p>{latest[0].data.description}</p>
+            <a class="golink" href={`/articles/${latest[0].id}/`}>Read it <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+          </>
+        ) : (
+          <>
+            <div class="pc-head">
+              <span class="pc-label">Coming soon</span>
+            </div>
+            <h3>The first article is on its way</h3>
+            <p>Nothing&#8217;s published yet &#8212; check back soon.</p>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="wrap">
+      <div class="grid-3">
+        <a class="card fcard reveal" href="/articles/">
+          <div class="fc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h6"></path></svg></div>
+          <div class="fc-sub">Articles</div>
+          <h3>Deep-dives with runnable code</h3>
+          <p>Long-form engineering write-ups &#8212; LLM evals, regression harnesses, self-healing suites. Every post ships with code you can run.</p>
+          <span class="golink">Browse articles <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+        </a>
+        <a class="card fcard reveal" href="/learn/" style="--d:.1s">
+          <div class="fc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M10 8.4l6 3.6-6 3.6z" fill="currentColor" stroke="none"></path></svg></div>
+          <div class="fc-sub">Learn</div>
+          <h3>Videos, a podcast and guided paths</h3>
+          <p>Watch, listen, and build. Structured lessons that take you from testing basics to shipping LLM evals in CI.</p>
+          <span class="golink">Start learning <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+        </a>
+        <a class="card fcard reveal" href="/services/" style="--d:.2s">
+          <div class="fc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M3 12.5h18"></path></svg></div>
+          <div class="fc-sub">Services</div>
+          <h3>Hands-on help for your team</h3>
+          <p>Consulting, eval setup and workshops from an engineer who does this in production, not in slides.</p>
+          <span class="golink">See services <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {latest.length > 0 && (
+    <div class="sect-tight">
+      <div class="wrap">
+        <div class="strip-head reveal">
+          <div>
+            <div class="eyebrow">Latest</div>
+            <h2 class="h-sec">Fresh from the lab.</h2>
+          </div>
+          <a class="golink" href="/articles/">All articles <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+        </div>
+        <div class="grid-3">
+          {latest.map((post, i) => (
+            <a class="card acard reveal" style={`--d:${i * 0.1}s`} href={`/articles/${post.id}/`}>
+              <div class="chips">{post.data.tags.slice(0, 2).map((t: string) => <span class="chip">{t}</span>)}</div>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+              <div class="meta"><span>{formatDate(post.data.pubDate)}</span><span class="sep">&#183;</span><span>{readingTime(post.body || '')}</span></div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <div class="band sect-tight" style="margin-top:56px">
+    <div class="wrap">
+      <div class="eyebrow reveal">What you&#8217;ll find here</div>
+      <div class="band-grid" style="margin-top:22px">
+        <div class="band-item reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"></path></svg>
+          <div><h4>LLM evaluation, demystified</h4><p>Ground-truth sets, judges, thresholds &#8212; how to score what can&#8217;t be asserted.</p></div>
+        </div>
+        <div class="band-item reveal" style="--d:.08s">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"></path></svg>
+          <div><h4>Automation that maintains itself</h4><p>Self-healing suites, AI-assisted test generation, and where to draw the line.</p></div>
+        </div>
+        <div class="band-item reveal" style="--d:.16s">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"></path></svg>
+          <div><h4>CI patterns that scale</h4><p>Nightly drift checks, model-upgrade gates, and builds that fail for good reasons.</p></div>
+        </div>
+        <div class="band-item reveal" style="--d:.24s">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"></path></svg>
+          <div><h4>No hype, receipts included</h4><p>Every claim comes with code, honest limitations, and a way to reproduce it.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

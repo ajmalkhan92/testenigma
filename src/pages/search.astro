@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Search" description="Search TestEnigma." active="home">
+  <div class="wrap pagehead">
+    <div class="eyebrow">Search</div>
+    <h1 class="h-sec">Find something.</h1>
+  </div>
+  <div class="wrap sect-tight">
+    <div id="search"></div>
+  </div>
+</BaseLayout>
+
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+<style>
+  #search :global(.pagefind-ui__search-input){
+    background:var(--card); border:1px solid var(--border); color:var(--text);
+    border-radius:11px; font-family:var(--sans);
+  }
+  #search :global(.pagefind-ui__result){
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px;
+  }
+  #search :global(.pagefind-ui__result-title a){ color:var(--text) }
+  #search :global(.pagefind-ui__result-excerpt mark){ background:var(--accent-dim); color:var(--accent) }
+  #search :global(.pagefind-ui__button){
+    background:var(--accent); color:var(--accent-ink); border-radius:9px; font-family:var(--sans);
+  }
+</style>
+<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.PagefindUI) {
+      new window.PagefindUI({ element: '#search', showSubResults: true });
+    }
+  });
+</script>

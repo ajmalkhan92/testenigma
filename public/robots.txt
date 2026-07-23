@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://testenigma.com/sitemap-index.xml

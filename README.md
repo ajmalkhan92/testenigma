@@ -1,10 +1,10 @@
 # TestEnigma
 
-A [Hugo](https://gohugo.io) static blog at [testenigma.com](https://testenigma.com)
+An [Astro](https://astro.build) static blog at [testenigma.com](https://testenigma.com)
 about AI for software testing and testing AI systems, with:
 
 - an automated publish pipeline (push a Markdown post -> GitHub Actions ->
-  builds with Hugo -> deploys to GitHub Pages, free, no server to maintain),
+  builds with Astro -> deploys to GitHub Pages, free, no server to maintain),
 - a documented manual step to cross-post to Medium with a canonical link
   (see [CROSSPOST.md](CROSSPOST.md) — Medium's API is closed to new
   integrations, so this can't be automated),
@@ -13,37 +13,52 @@ about AI for software testing and testing AI systems, with:
 ## Repo layout
 
 ```
-content/posts/   Hugo content — one Markdown file per post
-archetypes/       posts.md is the template `hugo new content posts/x.md` uses
-ideas/            Daily idea digests, dated (also emailed to you)
-scripts/          send_idea_email.py — emails the daily digest via Resend
-themes/PaperMod/  Hugo theme (git submodule)
-static/CNAME      Tells GitHub Pages the custom domain
-hugo.toml         Site config
+src/content/articles/  One Markdown/MDX file per post
+src/pages/              Routes (home, articles, learn, services, about, search)
+src/components/         Header, Footer, Giscus comments
+src/layouts/             BaseLayout.astro — shared <head>, nav, footer, theme toggle
+src/styles/global.css   Design tokens and site-wide styles
+public/                 Static assets served as-is (favicon, CNAME, robots.txt)
+ideas/                  Daily idea digests, dated (also emailed to you)
+scripts/                send_idea_email.py — emails the daily digest via Resend
 ```
 
 ## 1. Writing and publishing a post
 
-```
-hugo new content posts/your-post-slug.md
+Add a new Markdown file under `src/content/articles/your-post-slug.md`:
+
+```yaml
+---
+title: "Your post title"
+description: "One or two sentences for cards and SEO."
+pubDate: 2026-07-23
+draft: true
+category: field-notes # reliability | evaluation | automation | field-notes
+---
+
+Post body in Markdown.
 ```
 
-1. Fill in `title`, `tags`, `description` in the front matter, write the body
-   in Markdown.
-2. Leave `draft = true` while you're still writing — drafts are excluded
+1. Leave `draft: true` while you're still writing — drafts are excluded
    from the build, so it's safe to commit/push mid-draft.
-3. When ready, set `draft = false`, commit, and push to `main`.
-   `.github/workflows/publish.yml` builds the site with Hugo and deploys it
+2. When ready, set `draft: false`, commit, and push to `main`.
+   `.github/workflows/publish.yml` builds the site with Astro and deploys it
    to GitHub Pages automatically — no server, no manual deploy step.
-4. Cross-post to Medium manually — see [CROSSPOST.md](CROSSPOST.md).
+3. Cross-post to Medium manually — see [CROSSPOST.md](CROSSPOST.md).
 
 ### Preview locally before pushing
 
 ```
-hugo server -D
+npm install
+npm run dev
 ```
 
-Opens a live-reloading preview (including drafts) at `localhost:1313`.
+Opens a live-reloading preview (including drafts) at `localhost:4321`.
+
+```
+npm run build   # astro build + pagefind search index -> dist/
+npm run preview # serve the production build locally
+```
 
 ## 2. One-time GitHub Pages setup
 
@@ -70,7 +85,8 @@ Opens a live-reloading preview (including drafts) at `localhost:1313`.
 Set up once as a Claude Code scheduled routine (`/schedule` or the
 `CronCreate` tool) that runs once a day and:
 
-1. Reads existing titles in `content/posts/` and `ideas/` to avoid repeats.
+1. Reads existing titles in `src/content/articles/` and `ideas/` to avoid
+   repeats.
 2. Brainstorms 10 post ideas spanning both "AI for testing" and "testing AI
    systems."
 3. Writes them to `ideas/YYYY-MM-DD.md`.

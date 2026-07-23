@@ -1,0 +1,214 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  active: 'home' | 'articles' | 'learn' | 'services' | 'about';
+  ogImage?: string;
+}
+const { title, description, active, ogImage = '/og-default.png' } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const fullTitle = active === 'home' ? title : `${title} — TestEnigma`;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonicalURL} />
+  <meta name="generator" content={Astro.generator} />
+
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
+
+  <link rel="alternate" type="application/rss+xml" title="TestEnigma" href="/rss.xml" />
+
+  <script is:inline>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      if (saved === 'dark' || saved === 'light') {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div id="readbar" aria-hidden="true"></div>
+  <Header active={active} />
+  <main>
+    <slot />
+  </main>
+  <Footer />
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const root = document.documentElement;
+    function currentTheme() {
+      return root.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    let mermaidEntries: { container: HTMLElement; src: string }[] = [];
+    function paintMermaid() {
+      if (!mermaidEntries.length) return;
+      import('mermaid').then(({ default: mermaid }) => {
+        const dark = currentTheme() === 'dark';
+        mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'strict' });
+        mermaidEntries.forEach(async ({ container, src }, i) => {
+          try {
+            const { svg } = await mermaid.render(`mmd-${i}-${Date.now()}`, src);
+            container.innerHTML = svg;
+            container.classList.remove('loading');
+          } catch (err) {
+            container.textContent = 'Diagram failed to render.';
+          }
+        });
+      });
+    }
+
+    const themeBtn = document.getElementById('themetoggle');
+    themeBtn?.addEventListener('click', () => {
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+      paintMermaid();
+    });
+
+    // mermaid diagrams: replace fenced ```mermaid code blocks with rendered SVG
+    document.querySelectorAll('.prose pre.astro-code[data-language="mermaid"]').forEach((pre) => {
+      const src = pre.textContent || '';
+      const wrap = document.createElement('div');
+      wrap.className = 'mermaid-wrap loading';
+      wrap.textContent = 'Rendering diagram…';
+      pre.replaceWith(wrap);
+      mermaidEntries.push({ container: wrap, src });
+    });
+    paintMermaid();
+
+    const navEl = document.getElementById('nav');
+    const burger = document.getElementById('burger');
+    burger?.addEventListener('click', () => navEl?.classList.toggle('nav-open'));
+    document.getElementById('navpanel')?.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) navEl?.classList.remove('nav-open');
+    });
+
+    const toastEl = document.getElementById('toast') as HTMLElement;
+    let toastTimer: ReturnType<typeof setTimeout>;
+    function showToast(msg: string) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+    }
+    document.addEventListener('click', (e) => {
+      const el = (e.target as HTMLElement).closest('[data-stub]');
+      if (el) { e.preventDefault(); showToast(el.getAttribute('data-stub') || ''); }
+    });
+
+    // wrap Shiki code blocks with a header (language label + copy button)
+    document.querySelectorAll('.prose pre.astro-code').forEach((pre) => {
+      const lang = pre.getAttribute('data-language') || 'code';
+      const wrap = document.createElement('div');
+      wrap.className = 'astro-code-wrap';
+      const head = document.createElement('div');
+      head.className = 'code-head';
+      head.innerHTML = `<span class="code-lang">${lang}</span><button class="copybtn">Copy</button>`;
+      pre.parentNode?.insertBefore(wrap, pre);
+      wrap.appendChild(head);
+      wrap.appendChild(pre);
+    });
+
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.copybtn');
+      if (!btn) return;
+      const block = btn.closest('.astro-code-wrap');
+      const codeEl = block?.querySelector('code');
+      const text = codeEl?.textContent || '';
+      const done = () => {
+        const old = btn.textContent;
+        btn.classList.add('ok');
+        btn.textContent = 'Copied';
+        setTimeout(() => { btn.classList.remove('ok'); btn.textContent = old; }, 1600);
+      };
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        done();
+      }
+    });
+
+    // reveal-on-scroll
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window && !reduced) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { threshold: 0.12 });
+      revealEls.forEach((el) => io.observe(el));
+    } else {
+      revealEls.forEach((el) => el.classList.add('in'));
+    }
+
+    // table of contents: build from article headings, track active section, drive reading progress
+    const article = document.querySelector('.prose') as HTMLElement | null;
+    const tocSide = document.querySelector('.toc-side .toc-list') as HTMLElement | null;
+    const tocMobile = document.querySelector('.toc-m .toc-list') as HTMLElement | null;
+    const readbar = document.getElementById('readbar') as HTMLElement | null;
+
+    if (article) {
+      const headings = Array.from(article.querySelectorAll('h2[id]')) as HTMLElement[];
+      if (headings.length && (tocSide || tocMobile)) {
+        const links = headings.map((h) => {
+          const href = `#${h.id}`;
+          const text = h.textContent || '';
+          return `<a href="${href}" data-toc="${h.id}">${text}</a>`;
+        }).join('');
+        if (tocSide) tocSide.innerHTML = links;
+        if (tocMobile) tocMobile.innerHTML = links;
+      }
+
+      document.addEventListener('click', (e) => {
+        const a = (e.target as HTMLElement).closest('[data-toc]') as HTMLAnchorElement | null;
+        if (!a) return;
+        e.preventDefault();
+        document.getElementById(a.dataset.toc || '')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      });
+
+      function updateProgress() {
+        if (!article || !readbar) return;
+        const rect = article.getBoundingClientRect();
+        const total = article.offsetHeight - window.innerHeight * 0.5;
+        const scrolled = Math.min(Math.max(-rect.top, 0), Math.max(total, 1));
+        readbar.style.transform = `scaleX(${Math.min(1, scrolled / Math.max(total, 1))})`;
+      }
+      function updateTocActive() {
+        if (!headings.length) return;
+        let currentId = headings[0].id;
+        headings.forEach((h) => { if (h.getBoundingClientRect().top < 140) currentId = h.id; });
+        document.querySelectorAll('[data-toc]').forEach((el) => {
+          el.classList.toggle('on', (el as HTMLElement).dataset.toc === currentId);
+        });
+      }
+      window.addEventListener('scroll', () => { updateProgress(); updateTocActive(); }, { passive: true });
+      updateProgress();
+      updateTocActive();
+    }
+  </script>
+</body>
+</html>
