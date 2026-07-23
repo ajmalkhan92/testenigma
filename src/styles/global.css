@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ============ TOKENS (neutral, flat, minimal — Addy Osmani-style) ============ */
+/* ============ TOKENS (neutral, flat, minimal, Addy Osmani-style) ============ */
 :root{
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
@@ -463,6 +463,22 @@ a.card:hover, button.card:hover{border-color:var(--accent)}
 .about-body h1{font-size:1.8rem; font-weight:800; letter-spacing:-.02em; margin-bottom:18px}
 .about-body p{color:var(--text-soft); font-size:1.03rem; max-width:64ch; margin:0 0 18px}
 .pill-row{display:flex; gap:12px; margin-top:24px; flex-wrap:wrap}
+
+.stat-row{display:flex; gap:14px; flex-wrap:wrap; margin:26px 0 30px}
+.stat-item{
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:16px 20px; min-width:150px; transition:border-color .2s ease, transform .2s ease;
+}
+.stat-item:hover{border-color:var(--border-2); transform:translateY(-2px)}
+.stat-num{font-family:var(--mono); font-size:1.75rem; font-weight:700; color:var(--accent); line-height:1}
+.stat-label{font-size:.8rem; color:var(--muted); margin-top:6px; max-width:22ch}
+.stat-item-cadence{display:flex; flex-direction:column; justify-content:center}
+.cadence-row{display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:.92rem; color:var(--text-soft); white-space:nowrap}
+.cadence-row svg{width:15px; height:15px; color:var(--faint); flex-shrink:0}
+.cadence-row .accent{color:var(--accent); font-weight:700}
+
+.about-body .tabs{margin-bottom:22px}
+.about-body .tab-panel{margin-bottom:22px}
 
 /* ============ FOOTER ============ */
 .sitefoot{border-top:1px solid var(--border); padding:56px 0 30px; margin-top:10px}

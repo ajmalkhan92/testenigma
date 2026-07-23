@@ -12,8 +12,43 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="eyebrow">About</div>
       <h1>Hi, I&#8217;m Ajmal Khan</h1>
       <p class="sub">Quality Engineering leader, 15 years across QA, test strategy, and now AI systems testing.</p>
+
+      <div class="stat-row reveal">
+        <div class="stat-item">
+          <div class="stat-num" data-count="15" data-suffix="+">0</div>
+          <div class="stat-label">Years in QA &amp; test strategy</div>
+        </div>
+        <div class="stat-item" style="--d:.08s">
+          <div class="stat-num" data-count="100" data-suffix="+">0</div>
+          <div class="stat-label">Peak deploys/day shipped</div>
+        </div>
+        <div class="stat-item stat-item-cadence" style="--d:.16s">
+          <div class="cadence-row">
+            <span>3-month cycles</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            <span class="accent">100+/day</span>
+          </div>
+          <div class="stat-label">Release cadence, both ends</div>
+        </div>
+      </div>
+
       <p>I&#8217;ve spent 15 years in Quality Engineering across companies ranging from large MNCs to early-stage startups, which means I&#8217;ve worked both ends of the release-cadence spectrum: three-month release cycles where every change was a ceremony, and continuous deployment pipelines shipping 100+ changes to production in a day. That range is where most of what I actually know about test strategy comes from.</p>
-      <p>My core strength is test strategy: architecting coverage for microservices and APIs, and building the testing discipline that makes frequent deployment safe instead of reckless. I&#8217;m currently extending that into AI, pursuing a degree in AI Engineering and MLOps at BITS Pilani, which is the exact lens TestEnigma writes from: real QA discipline applied to the newer problem of testing LLMs and the systems built on top of them.</p>
+
+      <div class="tabs reveal" role="tablist" aria-label="Focus areas">
+        <button class="tab-btn on" data-tab="strategy">Test Strategy</button>
+        <button class="tab-btn" data-tab="micro">Microservices &amp; APIs</button>
+        <button class="tab-btn" data-tab="ai">AI &amp; LLM Testing</button>
+      </div>
+      <div class="tab-panel active" data-panel="strategy">
+        <p>Test strategy is the discipline of turning &#8220;we shipped and nothing broke&#8221; from luck into a guarantee: deciding what actually needs coverage, at which layer, and what&#8217;s safe to leave untested. Fifteen years of doing that across both three-month release trains and 100-deploys-a-day pipelines is where most of what&#8217;s on this blog comes from.</p>
+      </div>
+      <div class="tab-panel" data-panel="micro">
+        <p>Contract tests at the API boundary, integration tests where services actually talk to each other, and knowing which of the two catches a given class of bug. Most production incidents I&#8217;ve debugged trace back to a boundary nobody tested, not a unit that was undertested.</p>
+      </div>
+      <div class="tab-panel" data-panel="ai">
+        <p>The newest focus: applying that same discipline (know what you&#8217;re actually verifying, test at the right layer, don&#8217;t trust a green check you can&#8217;t explain) to systems where the thing under test doesn&#8217;t return the same answer twice. Currently formalizing it through a degree in AI Engineering and MLOps at BITS Pilani. TestEnigma is where it gets written up.</p>
+      </div>
+
       <p>Outside of work, I&#8217;m in the gym more often than not. Same principle as testing, honestly: consistency beats intensity.</p>
       <p>Have feedback, a correction, or an idea for a post? Reach out on LinkedIn, or leave a comment on any post here.</p>
       <div class="pill-row">
@@ -29,3 +64,43 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </div>
 </BaseLayout>
+
+<script>
+  const tabBtns = document.querySelectorAll('.about-body .tab-btn');
+  tabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach((b) => b.classList.remove('on'));
+      btn.classList.add('on');
+      document.querySelectorAll('.about-body .tab-panel').forEach((p) => p.classList.remove('active'));
+      const tab = (btn as HTMLElement).dataset.tab;
+      document.querySelector(`.about-body .tab-panel[data-panel="${tab}"]`)?.classList.add('active');
+    });
+  });
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const counters = document.querySelectorAll<HTMLElement>('.stat-num');
+  const animateCount = (el: HTMLElement) => {
+    const target = Number(el.dataset.count || 0);
+    const suffix = el.dataset.suffix || '';
+    if (reduced) { el.textContent = target + suffix; return; }
+    const duration = 900;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  if ('IntersectionObserver' in window && counters.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { animateCount(en.target as HTMLElement); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach((el) => io.observe(el));
+  } else {
+    counters.forEach((el) => animateCount(el));
+  }
+</script>
