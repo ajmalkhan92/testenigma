@@ -105,6 +105,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <style>
+  :global(.snap-page .eyebrow::before) {
+    content: none;
+  }
   :global(html:has(.snap-page)) {
     scroll-snap-type: y proximity;
   }
