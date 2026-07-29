@@ -62,43 +62,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section class="snap-sec snap-focus">
-      <div class="wrap">
-        <div class="eyebrow reveal">Focus areas</div>
-        <div class="about-main">
-          <div class="tabs reveal" role="tablist" aria-label="Focus areas">
-            <button class="tab-btn on" data-tab="strategy">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"></rect><polyline points="9 12 11 14 15 9"></polyline></svg>
-              Test Strategy
-            </button>
-            <button class="tab-btn" data-tab="ai">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"></path><path d="M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"></path></svg>
-              AI &amp; LLM Testing
-            </button>
-          </div>
-          <div class="tab-panel active" data-panel="strategy">
-            <ul class="point-list">
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"></polyline></svg>
-                <span>Turning &#8220;we shipped and nothing broke&#8221; from luck into a guarantee: deciding what needs coverage, at which layer, and what&#8217;s safe to leave untested.</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"></polyline></svg>
-                <span>Contract tests at the API boundary catch what unit tests can&#8217;t: the class of bug that only shows up when two services actually talk to each other.</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"></polyline></svg>
-                <span>API and E2E testing cover different failure modes: API tests verify each service&#8217;s contract in isolation, E2E confirms the full user journey still works once those services are wired together.</span>
-              </li>
-            </ul>
-          </div>
-          <div class="tab-panel" data-panel="ai">
-            <p>The newest focus: applying that same discipline (know what you&#8217;re actually verifying, test at the right layer, don&#8217;t trust a green check you can&#8217;t explain) to systems where the thing under test doesn&#8217;t return the same answer twice. Currently formalizing it through a professional certification in AI and MLOps at BITS Pilani. TestEnigma is where it gets written up.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="snap-sec snap-mission">
       <div class="wrap">
         <div class="eyebrow reveal">Mission</div>
@@ -153,17 +116,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </style>
 
 <script>
-  const tabBtns = document.querySelectorAll('.about-main .tab-btn');
-  tabBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      tabBtns.forEach((b) => b.classList.remove('on'));
-      btn.classList.add('on');
-      document.querySelectorAll('.about-main .tab-panel').forEach((p) => p.classList.remove('active'));
-      const tab = (btn as HTMLElement).dataset.tab;
-      document.querySelector(`.about-main .tab-panel[data-panel="${tab}"]`)?.classList.add('active');
-    });
-  });
-
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const counters = document.querySelectorAll<HTMLElement>('.stat-num');
   const animateCount = (el: HTMLElement) => {
