@@ -470,6 +470,11 @@ a.card:hover, button.card:hover{border-color:var(--accent)}
 
 .pill-row{display:flex; gap:12px; margin-top:24px; flex-wrap:wrap}
 
+.mission-statement{
+  font-size:clamp(1.4rem,2.6vw,1.9rem); font-weight:650; letter-spacing:-.015em; line-height:1.35;
+  color:var(--text); max-width:52ch; margin:0 0 20px;
+}
+
 /* hero */
 .about-hero-grid{display:flex; align-items:center; gap:40px; flex-wrap:wrap}
 .avatar-xl{width:148px; height:148px; border-radius:50%; object-fit:cover; border:3px solid var(--accent-dim); outline:1px solid var(--border-2); flex-shrink:0}
