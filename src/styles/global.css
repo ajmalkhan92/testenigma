@@ -508,16 +508,8 @@ a.card:hover, button.card:hover{border-color:var(--accent)}
 .cadence-row .accent{color:var(--accent); font-weight:700}
 
 /* quick facts + connect */
-.facts-grid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:48px; align-items:center}
-@media (max-width:820px){ .facts-grid{grid-template-columns:1fr} }
-.facts-grid p{color:var(--text-soft); font-size:1.03rem; max-width:56ch; margin:14px 0 16px}
+.snap-facts p{color:var(--text-soft); font-size:1.03rem; max-width:56ch; margin:14px 0 16px}
 .qf-social{display:flex; gap:10px; margin-top:20px}
-.qf-card h4{font-family:var(--mono); font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:16px}
-.qf-list{margin:0}
-.qf-row{display:flex; flex-direction:column; gap:2px; padding:10px 0; border-bottom:1px solid var(--border)}
-.qf-row:last-child{border-bottom:none; padding-bottom:0}
-.qf-row dt{font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
-.qf-row dd{font-size:.92rem; color:var(--text); font-weight:600; margin:0}
 
 /* ============ FOOTER ============ */
 .sitefoot{border-top:1px solid var(--border); padding:56px 0 30px; margin-top:10px}
